@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webster's Wi-Fi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=DotGothic16&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #2b2b36;
+            --card-bg: #ffb8d1; /* 可爱的草莓粉色 */
+            --box-border: #1a1a1a;
+            --accent-blue: #70c4ff;
+            --accent-yellow: #ffde59;
+            --btn-green: #79f2c6; /* 按钮的可爱绿色 */
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(#4a4a59 2px, transparent 2px);
+            background-size: 20px 20px;
+            font-family: 'Press Start 2P', 'DotGothic16', monospace;
+            overflow: hidden;
+            -webkit-user-select: none; /* 防止触摸选中文本 */
+            user-select: none;
+        }
+
+        /* 强制 9:16 比例的卡片容器 */
+        .wifi-card {
+            height: 90vh;
+            max-height: 800px;
+            aspect-ratio: 9 / 16;
+            background-color: var(--card-bg);
+            border: 6px solid var(--box-border);
+            box-shadow: 12px 12px 0px rgba(0,0,0,0.8);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+            background-image: linear-gradient(rgba(255,255,255,0.2) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px);
+            background-size: 15px 15px;
+        }
+
+        /* 顶部装饰条 */
+        .top-bar {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 30px;
+            background-color: var(--box-border);
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            color: white;
+            font-size: 10px;
+            justify-content: space-between;
+        }
+
+        .dots span {
+            display: inline-block;
+            width: 10px; height: 10px;
+            background-color: var(--accent-yellow);
+            margin-right: 5px;
+            border: 2px solid white;
+        }
+
+        /* 动态悬浮的图标容器 */
+        .icon-container {
+            width: 100px;
+            height: 100px;
+            margin-top: 50px;
+            margin-bottom: 30px;
+            animation: float 2.5s ease-in-out infinite;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 用户设计图标的占位符样式 */
+        .user-icon {
+            max-width: 100%;
+            max-height: 100%;
+            /* 保持像素清晰度，防止拉伸模糊 */
+            image-rendering: pixelated; 
+            image-rendering: crisp-edges;
+            border: 4px solid var(--box-border);
+            background-color: white;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.2);
+        }
+
+        /* 用于演示的默认像素风 SVG 图标 */
+        .default-pixel-icon {
+            width: 80px; height: 80px;
+            background-color: #ffccff;
+            border: 4px solid var(--box-border);
+            clip-path: polygon(0 25%, 0 75%, 25% 100%, 75% 100%, 100% 75%, 100% 25%, 75% 0, 25% 0);
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.2);
+        }
+
+        /* 信息输入框样式 */
+        .info-group {
+            width: 90%;
+            margin-bottom: 15px;
+        }
+
+        .label {
+            font-size: 10px;
+            color: var(--box-border);
+            text-align: left;
+            margin-bottom: 8px;
+            text-shadow: 1px 1px 0px white;
+            font-family: 'Press Start 2P', monospace; /* 只用英文像素字体 */
+        }
+
+        .value-box {
+            background-color: white;
+            border: 4px solid var(--box-border);
+            box-shadow: 6px 6px 0px rgba(0,0,0,0.3);
+            padding: 15px 10px;
+            font-size: 16px;
+            color: var(--box-border);
+            word-break: break-all;
+            /* 增加这个属性，点击复制时不会选中文字 */
+            -webkit-user-select: text; 
+            user-select: text;
+        }
+
+        /* Wi-Fi 名称特殊样式：中文像素字体 */
+        .ssid-box {
+            font-family: 'DotGothic16', monospace;
+            font-size: 18px;
+            letter-spacing: 1px;
+        }
+
+        /* 密码框特殊颜色 */
+        .password-box {
+            background-color: var(--accent-blue);
+            color: white;
+            text-shadow: 2px 2px 0px var(--box-border);
+            margin-bottom: 25px; /* 给复制按钮留出空间 */
+            cursor: pointer; /* 提示可点击 */
+        }
+
+        /* 像素风复制按钮 */
+        .copy-btn {
+            background-color: var(--btn-green);
+            color: var(--box-border);
+            border: 4px solid var(--box-border);
+            box-shadow: 6px 6px 0px rgba(0,0,0,0.8);
+            font-family: 'Press Start 2P', monospace;
+            font-size: 12px;
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.1s;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+        }
+
+        .copy-btn:hover {
+            background-color: var(--accent-yellow);
+            transform: translate(2px, 2px);
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.8);
+        }
+
+        .copy-btn:active {
+            background-color: #f2a679;
+            transform: translate(6px, 6px);
+            box-shadow: 0px 0px 0px rgba(0,0,0,0.8);
+        }
+
+        /* 底部动态闪烁文字 */
+        .blink-text {
+            margin-top: auto;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #ff3366;
+            animation: blink 1s step-end infinite;
+            text-shadow: 2px 2px 0px white;
+            font-family: 'DotGothic16', monospace; /* 使用中文像素字体 */
+        }
+
+        /* 漂浮的小星星装饰 */
+        .star {
+            position: absolute;
+            color: white;
+            font-size: 20px;
+            animation: float 3s ease-in-out infinite reverse;
+        }
+        .star-1 { top: 18%; left: 10%; }
+        .star-2 { bottom: 35%; right: 10%; font-size: 14px; }
+
+        /* 复制成功的提示动画 */
+        @keyframes fadeOutUp {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-20px); }
+        }
+
+        .copied-tip {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--box-border);
+            color: white;
+            padding: 5px 10px;
+            font-size: 10px;
+            border: 2px solid white;
+            animation: fadeOutUp 1s ease-out;
+            pointer-events: none;
+        }
+
+        /* 动画定义 */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        /* 像素风格奶牛猫容器 */
+        .cow-cat-container {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        /* 奶牛猫图片样式 */
+        .cow-cat-image {
+            max-width: 100%;
+            max-height: 100%;
+            /* 保持像素清晰度，防止拉伸模糊 */
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            animation: catWalk 4s ease-in-out infinite;
+        }
+        
+        /* 动画效果 */
+        @keyframes catWalk {
+            0%, 100% { transform: translateX(0) rotate(0deg); }
+            25% { transform: translateX(10px) rotate(2deg); }
+            75% { transform: translateX(-10px) rotate(-2deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="wifi-card">
+        <div class="top-bar">
+            <div class="dots"><span></span><span></span></div>
+            <div>STATUS: CONNECTED</div>
+        </div>
+
+        <div class="star star-1">✦</div>
+        <div class="star star-2">✦</div>
+
+        <div class="icon-container">
+            <img class="user-icon" 
+                 src="assets/wifi-icon.png" 
+                 alt="Wi-Fi 图标">
+        </div>
+
+        <div class="info-group">
+            <div class="label">NETWORK (SSID):</div>
+            <div class="value-box ssid-box">
+                真男人必会韦伯斯特
+            </div>
+        </div>
+
+        <div class="info-group">
+            <div class="label">PASSWORD:</div>
+            <div class="value-box password-box" id="password_value">
+                cqygfxgssthlhgzbrz
+            </div>
+        </div>
+
+        <div style="position: relative;">
+            <button class="copy-btn" id="copy_btn">COPY PASSWORD</button>
+            <div id="copied_tip_container"></div>
+        </div>
+
+        <!-- 像素风格奶牛猫动态图案 -->
+        <div class="cow-cat-container">
+            <img class="cow-cat-image" src="assets/cow-cat.png" alt="奶牛猫">
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('copy_btn').addEventListener('click', function() {
+            // 1. 获取密码内容
+            const passwordValue = document.getElementById('password_value').innerText.trim();
+            
+            // 2. 将内容写入剪贴板
+            navigator.clipboard.writeText(passwordValue).then(function() {
+                // 3. 复制成功反馈
+                
+                // 添加“COPIED!”临时文本到按钮上
+                const btn = document.getElementById('copy_btn');
+                const originalText = btn.innerText;
+                btn.innerText = 'COPIED!';
+                btn.style.backgroundColor = '#ffde59'; // 黄色反馈
+                
+                // 1.5秒后还原按钮文本和颜色
+                setTimeout(function() {
+                    btn.innerText = originalText;
+                    btn.style.backgroundColor = '';
+                }, 1500);
+
+            }, function(err) {
+                // 4. 复制失败时的后备方案
+                console.error('无法复制文本: ', err);
+                alert('复制失败，请手动长按复制!');
+            });
+        });
+
+        // 也可以点击密码框直接复制
+        document.getElementById('password_value').addEventListener('click', function() {
+            document.getElementById('copy_btn').click();
+        });
+    </script>
+
+</body>
+</html>
